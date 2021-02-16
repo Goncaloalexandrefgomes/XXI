@@ -24,7 +24,8 @@ class User:
         ficheiro = self.herokudb()
         db = ficheiro.cursor()
         #db.execute("drop table usr")
-        db.execute("CREATE TABLE IF NOT EXISTS usr (id serial primary key, login text, email text, password text, nif text, nome text, morada char(60))")
+        db.execute("CREATE TABLE IF NOT EXISTS usr (id serial primary key, login text, email text, password text, "
+                   "nif text, nome text, morada char(60))")
         db.execute("INSERT INTO usr VALUES (DEFAULT, %s, %s, %s)", (login, email, self.code(password),))
         ficheiro.commit()
         ficheiro.close()

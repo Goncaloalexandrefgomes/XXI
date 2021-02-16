@@ -2,11 +2,20 @@
 
 {% block body %}
 <p><br></p>
-<h2>Isto é a Tabela!!!</h2>
+<h2>Lista de Clientes</h2>
 <p><br></p>
-<table border="20" align="center">
+<table border="5" align="center"; cellpadding="8" >
+    <tr style="font-weight: bold; background-color: cyan">
+        <td>ID</td>
+        <td>Login</td>
+        <td>Email</td>
+        <td>Password</td>
+        <td>NIF</td>
+        <td>Nome</td>
+        <td>Morada</td>
+    </tr>
     {% for li in range(0, max) %}
-    <tr>
+    <tr><td style="font-weight: bold">{{ tabela[li][0] }}</td>
         {% for co in range(0, 7) %}
         <td align="left">
             {{ tabela[li][co] }}
