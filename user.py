@@ -30,6 +30,13 @@ class User:
         ficheiro.commit()
         ficheiro.close()
 
+    def apagarusr(self):
+        ficheiro = self.herokudb()
+        db = ficheiro.cursor()
+        db.execute("drop table usr")
+        ficheiro.commit()
+        ficheiro.close()
+
     def existe(self, login):
         try:
             ficheiro = self.herokudb()
@@ -71,7 +78,7 @@ class User:
             valor = db.fetchall()
             ficheiro.close()
         except:
-            valor = None
+            valor = ""
         return valor
 
 
