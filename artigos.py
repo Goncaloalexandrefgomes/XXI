@@ -1,8 +1,6 @@
 import psycopg2
 
-
 class Artigos:
-
     def __init__(self):
         self.reset()
 
@@ -18,12 +16,20 @@ class Artigos:
         self.created = None  # Data de criação
         self.updated = None  # Data de alteração
 
+        ficheiro = self.herokudb()
+        db = ficheiro.cursor()
+        db.execute("CREATE TABLE IF NOT EXISTS categorias (id serial primary key, category text)")
+        db.execute("CREATE TABLE IF NOT EXISTS artigos (id serial primary key, category int, brand text,"
+                   "description text, price numeric,reference text, ean text, stock int, created date, updated date,"
+                   "CONSTRAINT fk_category foreign key (category) references categorias(id))")
+        ficheiro.commit()
+        ficheiro.close()
+
     def herokudb(self):
         from db import Database
         mydb = Database()
         return psycopg2.connect(host=mydb.Host, database=mydb.Database, user=mydb.User, password=mydb.Password,
                                 sslmode='require')
-
     def select(self, id):
         erro = None
         try:
@@ -45,19 +51,61 @@ class Artigos:
     def inserirA(self, category, brand, description, price):
         ficheiro = self.herokudb()
         db = ficheiro.cursor()
-        db.execute("CREATE TABLE IF NOT EXISTS artigos"
-                   "(id serial primary key, category text, brand text, description text, price numeric,"
-                   "reference text, ean text, stock int, created date, updated date)")
-        db.execute("INSERT INTO artigos VALUES (DEFAULT ,%s, %s, %s, %s)", (category, brand, description, price,))
+        catId = self.existeC(category)
+        if not catId:
+            self.inserirC(category)
+            catId = self.existeC(category)
+        db.execute("INSERT INTO artigos VALUES (DEFAULT ,%s, %s, %s, %s)", (catId, brand, description, price,))
         ficheiro.commit()
         ficheiro.close()
 
-    def eliminarA(self, id):
+    def inserirC(self, category):
         ficheiro = self.herokudb()
         db = ficheiro.cursor()
-        db.execute("DELETE FROM artigos WHERE id = %s", (id))
+        db.execute("INSERT INTO categorias VALUES (DEFAULT ,%s)", (category,))
         ficheiro.commit()
         ficheiro.close()
+
+    def apagarusr(self):
+        try:
+            ficheiro = self.herokudb()
+            db = ficheiro.cursor()
+            db.execute("drop table usr")
+            ficheiro.commit()
+            ficheiro.close()
+        except:
+            erro = "A tabela não existe."
+        return erro
+
+    def existe(self, login):
+        try:
+            ficheiro = self.herokudb()
+            db = ficheiro.cursor()
+            db.execute("SELECT * FROM usr WHERE login = %s", (login,))
+            valor = db.fetchone()
+            ficheiro.close()
+        except:
+            valor = None
+        return valor
+
+    def existeC(self, category):
+        try:
+            ficheiro = self.herokudb()
+            db = ficheiro.cursor()
+            db.execute("SELECT id FROM categorias WHERE category = %s", (category,))
+            valor = db.fetchone()
+            ficheiro.close()
+        except:
+            valor = None
+        return valor
+
+    def log(self, login, password):
+        ficheiro = self.herokudb()
+        db = ficheiro.cursor()
+        db.execute("SELECT * FROM usr WHERE login = %s and password = %s", (login, self.code(password),))
+        valor = db.fetchone()
+        ficheiro.close()
+        return valor
 
     def alterar(self, id, price):
         ficheiro = self.herokudb()
@@ -73,23 +121,24 @@ class Artigos:
         ficheiro.commit()
         ficheiro.close()
 
-    def existe(self, id):
-        try:
-            ficheiro = self.herokudb()
-            db = ficheiro.cursor()
-            db.execute("SELECT * FROM artigos WHERE id = %s", (id))
-            valor = db.fetchone()
-            ficheiro.close()
-        except:
-            valor = None
-        return valor
-
     @property
     def lista(self):
         try:
             ficheiro = self.herokudb()
             db = ficheiro.cursor()
             db.execute("select * from artigos")
+            valor = db.fetchall()
+            ficheiro.close()
+        except:
+            valor = ""
+        return valor
+
+    @property
+    def listaC(self):
+        try:
+            ficheiro = self.herokudb()
+            db = ficheiro.cursor()
+            db.execute("select category from categorias")
             valor = db.fetchall()
             ficheiro.close()
         except:
