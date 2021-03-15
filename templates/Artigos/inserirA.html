@@ -17,9 +17,9 @@
             <h4>Marca</h4>
             <input list="brand" name="brand" required>
             <datalist id="brand">
-            {% set lbr = art.listaM %}
-            {% for item in range(lbr|count) %}
-            <option value="{{ lbr[item][0] }}">
+                {% set lcat = art.listaM %}
+                {% for item in range(lcat|count) %}
+                    <option value="{{ lcat[item][0] }}">
                 {% endfor %}
             </datalist>
             <h4>Descrição</h4>
